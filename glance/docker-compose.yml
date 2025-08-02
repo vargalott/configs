@@ -1,0 +1,17 @@
+name: glance
+
+services:
+  glance:
+    image: glanceapp/glance
+    container_name: glance
+    volumes:
+      - ./config:/app/config
+      - ./assets:/app/assets
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - localnet
+    restart: unless-stopped
+
+networks:
+  localnet:
+    external: true
