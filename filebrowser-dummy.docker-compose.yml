@@ -1,0 +1,17 @@
+name: filebrowser
+
+services:
+  filebrowser:
+    image: filebrowser/filebrowser:s6
+    container_name: filebrowser
+    restart: always
+    networks:
+      - localnet
+    volumes:
+      - ./data/files:/srv
+      - ./data/db:/database
+      - ./data/config:/config
+
+networks:
+  localnet:
+    external: true
