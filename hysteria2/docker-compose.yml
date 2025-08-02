@@ -1,0 +1,20 @@
+name: hysteria2
+
+services:
+  hysteria2:
+    image: tobyxdd/hysteria
+    container_name: hysteria2
+    restart: always
+    network_mode: "host"
+    volumes:
+      - ./hysteria2.yaml:/etc/hysteria2.yaml
+      - /etc/letsencrypt/:/etc/letsencrypt/
+    command: [ "server", "-c", "/etc/hysteria2.yaml" ]
+    environment:
+      HYSTERIA_LOG_LEVEL: info
+      HYSTERIA_LOG_FORMAT: console
+
+    logging:
+      driver: "local"
+      options:
+        max-size: "100m"

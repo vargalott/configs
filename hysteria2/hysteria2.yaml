@@ -1,0 +1,48 @@
+listen: 0.0.0.0:443
+
+resolver:
+  type: https
+  https:
+    addr: 1.1.1.1:443
+    timeout: 10s
+    sni: cloudflare-dns.com
+    insecure: false
+
+tls:
+  cert: /etc/letsencrypt/live/DOMAIN/fullchain.pem
+  key: /etc/letsencrypt/live/DOMAIN/privkey.pem
+  sniGuard: strict
+
+sniff:
+  enable: true
+  timeout: 2s
+  rewriteDomain: false
+  tcpPorts: all
+  udpPorts: all 
+
+auth:
+  type: userpass
+  userpass:
+    user: password
+
+# obfs:
+#   type: salamander 
+#   salamander:
+#     password: password
+
+masquerade:
+  type: proxy
+  proxy:
+    url: https://DOMAIN:8443
+    rewriteHost: true 
+    insecure: false
+  # listenHTTP: :80
+  listenHTTPS: :443
+  forceHTTPS: true
+
+# ignoreClientBandwidth: false
+# bandwidth:
+#   up: 100 mbps
+#   down: 100 mbps
+
+disableUDP: false
