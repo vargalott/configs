@@ -1,5 +1,10 @@
 # configs
 
+## vps init
+```sh
+curl -fsSL https://raw.githubusercontent.com/vargalott/configs/refs/heads/main/init.sh | bash
+```
+
 ## some stuff
 ```sh
 ssh -p <port> user@host -L <local_port>:127.0.0.1:<remote_port>
