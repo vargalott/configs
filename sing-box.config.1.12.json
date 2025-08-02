@@ -1,0 +1,114 @@
+{
+    "log": {
+        "disabled": false,
+        "level": "warning",
+        "timestamp": true
+    },
+    "dns": {
+        "servers": [
+            {
+                "tag": "dns-base",
+                "type": "udp",
+                "server": "1.1.1.1"
+            },
+            {
+                "tag": "dns-main",
+                "type": "https",
+                "server": "cloudflare-dns.com",
+                "path": "/dns-query",
+                "domain_resolver": "dns-base"
+            },
+            {
+                "type": "fakeip",
+                "tag": "fakeip",
+                "inet4_range": "198.18.0.0/16"
+            }
+        ],
+        "rules": [
+            {
+                "query_type": [
+                    "A"
+                ],
+                "server": "fakeip"
+            }
+        ],
+        "final": "dns-main",
+        "strategy": "ipv4_only",
+        "disable_cache": false,
+        "disable_expire": false,
+        "independent_cache": false,
+        "cache_capacity": 1024,
+        "reverse_mapping": false
+    },
+    "ntp": {
+        "enabled": true,
+        "server": "time.cloudflare.com",
+        "server_port": 123,
+        "interval": "30m"
+    },
+    "inbounds": [
+        {
+
+        }
+    ],
+    "outbounds": [
+        {
+            "type": "direct",
+            "tag": "direct-out"
+        }
+    ],
+    "route": {
+        "default_domain_resolver": "dns-main",
+        "rules": [
+            {
+                "action": "sniff"
+            },
+            {
+                "protocol": "dns",
+                "action": "hijack-dns"
+            },
+            {
+                "protocol": "bittorrent",
+                "action": "reject",
+                "method": "drop"
+            },
+            {
+                "rule_set": [
+                    "set-geoip-ru",
+                    "set-geosite-gov-ru"
+                ],
+                "domain_suffix": [
+                    "ru",
+                    "su",
+                    "ру",
+                    "рус",
+                    "рф"
+                ],
+                "action": "reject",
+                "method": "drop"
+            }
+        ],
+        "rule_set": [
+            {
+                "type": "remote",
+                "format": "binary",
+                "update_interval": "1d",
+                "tag": "set-geoip-ru",
+                "url": "https://raw.githubusercontent.com/SagerNet/sing-geoip/rule-set/geoip-ru.srs"
+            },
+            {
+                "type": "remote",
+                "format": "binary",
+                "update_interval": "1d",
+                "tag": "set-geosite-gov-ru",
+                "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-category-gov-ru.srs"
+            }
+        ],
+        "final": "direct-out"
+    },
+    "experimental": {
+        "cache_file": {
+            "enabled": true
+        }
+    }
+}
