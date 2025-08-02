@@ -1,0 +1,24 @@
+name: nginx
+
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    restart: always
+    networks:
+      - localnet
+    ports:
+      - 8443:8443
+    volumes:
+      - ./nginx/:/etc/nginx/
+      - /etc/letsencrypt/:/etc/letsencrypt/
+      - ./data/:/data/
+
+    logging:
+      driver: "local"
+      options:
+        max-size: "100m"
+
+networks:
+  localnet:
+    external: true
