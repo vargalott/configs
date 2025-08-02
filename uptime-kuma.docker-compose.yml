@@ -1,0 +1,22 @@
+name: uptime-kuma
+
+services:
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: uptime-kuma
+    volumes:
+      - ./data:/app/data
+    networks:
+      - localnet
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Berlin
+
+    logging:
+      driver: "local"
+      options:
+        max-size: "100m"
+
+networks:
+  localnet:
+    external: true
