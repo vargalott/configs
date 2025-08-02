@@ -8,7 +8,7 @@ bash <(curl -Ls check.unlock.media) -E en -R 0
 wget -qO- bench.sh | bash
 wget -qO- nws.sh | bash
 
-certbot certonly --standalone --agree-tos -m <email> -d <domain>
+certbot certonly --standalone --agree-tos -m EMAIL -d DOMAIN
 certbot renew --dry-run
 
 uuidgen
