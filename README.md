@@ -1,5 +1,6 @@
 
 ## some stuff
+```sh
 ssh -p <port> user@host -L <local_port>:127.0.0.1:<remote_port>
 
 bash <(curl -Ls IP.Check.Place) -l en
@@ -12,3 +13,4 @@ certbot certonly --standalone --agree-tos -m EMAIL -d DOMAIN
 certbot renew --dry-run
 
 uuidgen
+```
