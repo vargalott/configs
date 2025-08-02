@@ -10,7 +10,7 @@ curl -fsSL https://raw.githubusercontent.com/vargalott/configs/refs/heads/main/i
 ssh -p <port> user@host -L <local_port>:127.0.0.1:<remote_port>
 
 wget -qO- IP.Check.Place | bash -s -- -l en
-wget -qO - "https://raw.githubusercontent.com/vernette/ipregion/refs/heads/master/ipregion.sh" | bash
+wget -qO- "https://raw.githubusercontent.com/vernette/ipregion/refs/heads/master/ipregion.sh" | bash
 wget -qO- check.unlock.media | bash -s -- -E en -R 0
 wget -qO- bench.sh | bash
 wget -qO- nws.sh | bash
