@@ -1,0 +1,17 @@
+name: sing-box
+
+services:
+  sing-box:
+    image: ghcr.io/sagernet/sing-box:latest-beta
+    container_name: sing-box
+    restart: always
+    network_mode: "host"
+    volumes:
+      - ./sing-box:/etc/sing-box/
+      - /etc/letsencrypt/:/etc/letsencrypt/
+    command: -D /var/lib/sing-box -C /etc/sing-box/ run
+
+    logging:
+      driver: "local"
+      options:
+        max-size: "100m"
