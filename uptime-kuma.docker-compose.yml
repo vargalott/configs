@@ -10,7 +10,7 @@ services:
       - localnet
     restart: unless-stopped
     environment:
-      - TZ=Europe/Berlin
+      - TZ=UTC
 
     logging:
       driver: "local"
