@@ -1,0 +1,225 @@
+log-level: warning
+ipv6: false
+udp: true
+mixed-port: 2080
+unified-delay: true
+disable-keep-alive: false
+keep-alive-interval: 30
+keep-alive-idle: 30
+find-process-mode: strict
+tcp-concurrent: true
+global-client-fingerprint: chrome
+
+
+# profile:
+#   store-selected: true
+#   store-fake-ip: true
+
+
+tun:
+  stack: gvisor
+  auto-route: true
+  auto-redirect: true
+  auto-detect-interface: true
+  strict-route: true
+  mtu: 1500
+  dns-hijack:
+    - any:53
+    - tcp://any:53
+
+
+ntp:
+  enable: true
+  server: time.cloudflare.com
+  port: 123
+  interval: 30
+
+
+sniffer:
+  enable: true
+  parse-pure-ip: true
+  override-destination: true
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+
+
+dns:
+  enable: true
+  cache-algorithm: arc
+  listen: 0.0.0.0:53
+  respect-rules: false
+  ipv6: false
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.0/16  
+  
+  default-nameserver:
+    - 1.1.1.1
+    - 9.9.9.9
+  nameserver:
+    - https://cloudflare-dns.com/dns-query
+    - https://dns.quad9.net/dns-query
+  fallback:
+    - tls://1.1.1.1
+    - tls://dns.quad9.net
+
+
+#region PROXIES
+
+proxies:
+
+  # GATEWAY
+  - name: "RU-GATEWAY"
+    # ...
+
+  # ---------
+  
+  - name: "PROXY"
+    dialer-proxy: GATEWAY
+    # ...  
+
+
+  # type: hysteria2
+  # server: DOMAIN
+  # # up: "100 Mbps"
+  # # down: "100 Mbps"
+  # port: 443
+  # udp: true
+  # password: "PASSWORD"
+  # # obfs: salamander
+  # # obfs-password: "OBFS-PASSWORD"
+  # sni: DOMAIN
+  # skip-cert-verify: false
+
+  # type: vless
+  # network: tcp
+  # server: DOMAIN
+  # port: 443
+  # udp: true
+  # uuid: UUID
+  # flow: xtls-rprx-vision
+  # packet-encoding: xudp
+  # tls: true
+  # servername: DOMAIN
+  # client-fingerprint: chrome
+  # reality-opts:
+  #   public-key: PBK
+
+
+# proxy-providers:
+#   istanbulsydneyhotel:
+#     type: http
+#     url: https://istanbulsydneyhotel.com/blogs/site/sni.php?security=reality&country=de;fi;se;nl&kind=vless
+#     path: ./providers/istanbulsydneyhotel.yaml
+#     interval: 3600
+#     proxy: DIRECT
+#     override:
+#       udp: true
+
+
+proxy-groups:
+  - name: PROXY
+    type: select
+    url: http://cp.cloudflare.com/generate_204
+    interval: 30
+    proxies:
+      - "PROXY"
+    # use:
+    #  - istanbulsydneyhotel
+  
+  - name: GATEWAY
+    type: select
+    url: http://cp.cloudflare.com/generate_204
+    interval: 30
+    proxies:
+      - "RU-GATEWAY"
+      - "DIRECT"
+  
+  - name: RUNET-OUT
+    type: select
+    url: http://cp.cloudflare.com/generate_204
+    interval: 30
+    proxies:
+      - "RU-GATEWAY"
+      - "DIRECT"
+
+#endregion PROXIES
+
+
+#region RULES
+
+rule-providers:
+
+  # SOURCE: https://github.com/MetaCubeX/meta-rules-dat/tree/meta
+  geoip-private:
+    type: http
+    format: mrs
+    behavior: ipcidr
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/private.mrs
+    path: ./rules/geoip-private.mrs
+    interval: 86400
+
+  # SOURCE: https://github.com/MetaCubeX/meta-rules-dat/tree/meta
+  geoip-ru:
+    type: http
+    format: mrs
+    behavior: ipcidr
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/ru.mrs
+    path: ./rules/geoip-ru.mrs
+    interval: 86400
+
+  # ---
+
+  # SOURCE: https://github.com/MetaCubeX/meta-rules-dat/tree/meta
+  geosite-gov-ru:
+    type: http
+    format: mrs
+    behavior: domain
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-gov-ru.mrs
+    path: ./rules/geosite-gov-ru.mrs
+    interval: 86400
+  
+  # SOURCE: https://github.com/MetaCubeX/meta-rules-dat/tree/meta
+  geosite-yandex:
+    type: http
+    format: mrs
+    behavior: domain
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/yandex.mrs
+    path: ./rules/geosite-yandex.mrs
+    interval: 86400
+  
+  # SOURCE: https://github.com/itdoginfo/allow-domains/
+  geosite-itdoginfo-allow-domains-outside:
+    type: http
+    format: text
+    behavior: classical
+    url: https://raw.githubusercontent.com/itdoginfo/allow-domains/main/Russia/outside-clashx.lst
+    path: ./rules/geosite-itdoginfo-allow-domains-outside.lst
+    interval: 86400
+  
+  # SOURCE: https://gist.github.com/vargalott/6de7a0f2f953f116d56b181195777a59
+  geosite-domain-suffix-russia:
+    type: http
+    format: text
+    behavior: classical
+    url: https://gist.githubusercontent.com/vargalott/6de7a0f2f953f116d56b181195777a59/raw/b0df1df5be04fb22f6856076011fadab043ad0aa/clash-domain-suffix-russia.lst
+    path: ./rules/geosite-domain-suffix-russia.lst
+    interval: 86400
+
+
+rules:
+  - RULE-SET,geoip-private,DIRECT,no-resolve
+
+  - RULE-SET,geoip-ru,RUNET-OUT
+  - RULE-SET,geosite-gov-ru,RUNET-OUT
+  - RULE-SET,geosite-yandex,RUNET-OUT
+  - RULE-SET,geosite-itdoginfo-allow-domains-outside,RUNET-OUT
+  - RULE-SET,geosite-domain-suffix-russia,RUNET-OUT
+
+  - MATCH,PROXY
+
+#endregion RULES
