@@ -1,0 +1,16 @@
+name: mtproxy
+
+services:
+  mtproxy:
+    image: telegrammessenger/proxy:latest
+    container_name: mtproxy
+    restart: always
+    ports:
+      - "65002:443"
+    volumes:
+      - ./data:/data
+
+    logging:
+      driver: "local"
+      options:
+        max-size: "100m"
