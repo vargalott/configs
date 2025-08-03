@@ -7,7 +7,7 @@ server:
 auth:
   secret-key: KEY
   users:
-    odyw:
+    admin:
       password-hash: HASH
 
 theme:
@@ -18,3 +18,4 @@ theme:
 
 pages:
   # - $include: home.yml
+
