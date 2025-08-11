@@ -8,11 +8,10 @@ apt-get -y update
 apt-get -y upgrade
 apt-get -y install micro nano certbot htop btop iftop bmon cron net-tools curl wget
 curl -fsSL https://get.docker.com | sh
-
 timedatectl set-timezone UTC
 
 
-# --- Kernel networking settings (BBR & disable IPv6) ---
+# --- BBR & disable IPv6 ---
 cat <<'EOF' >> /etc/sysctl.conf
 # BBR & disable IPv6
 net.core.default_qdisc=fq
@@ -26,7 +25,7 @@ sysctl -p
 sysctl --system
 
 
-# --- Replace SSH configuration completely ---
+# --- SSH ---
 cat <<'EOF' > /etc/ssh/sshd_config
 # --- Network Configuration ---
 ListenAddress 0.0.0.0
@@ -56,10 +55,14 @@ AcceptEnv LANG LC_*
 Subsystem sftp /usr/lib/openssh/sftp-server
 EOF
 
+read -rp "Enter your public SSH key: " SSH_KEY
+mkdir -p ~/.ssh && chmod 700 ~/.ssh
+echo "$SSH_KEY" > ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
 systemctl restart ssh
 
 
-# --- Replace systemd-resolved configuration ---
+# --- DNS ---
 cat <<'EOF' > /etc/systemd/resolved.conf
 [Resolve]
 DNS=1.1.1.1
@@ -81,14 +84,17 @@ systemctl enable systemd-resolved
 systemctl start systemd-resolved
 
 
+# --- Cron reboot ---
 (crontab -l 2>/dev/null; echo "0 0 * * * /sbin/shutdown -r now") | crontab -
 
 
-mkdir -p ~/.ssh && chmod 700 ~/.ssh
-echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICtnDore2jiTo0IJYhA+7v+8Kmq9kBdEj/6/dP7lEKIP" > ~/.ssh/authorized_keys
-chmod 600 ~/.ssh/authorized_keys
+# --- SSL certificates ---
+read -rp "Enter your email for Let's Encrypt: " CERT_EMAIL
+read -rp "Enter your domain name: " CERT_DOMAIN
+certbot certonly --standalone --agree-tos -m "$CERT_EMAIL" -d "$CERT_DOMAIN" --non-interactive
 
 
+# --- Shell config ---
 echo '\n\n' >> ~/.bashrc
 echo 'force_color_prompt=yes' >> ~/.bashrc
 echo 'export LANG=en_US.UTF-8' >> ~/.bashrc
