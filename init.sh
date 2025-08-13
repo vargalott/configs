@@ -29,7 +29,7 @@ sysctl --system
 cat <<'EOF' > /etc/ssh/sshd_config
 # --- Network Configuration ---
 ListenAddress 0.0.0.0
-Port 65000
+Port 8080
 
 # --- Cryptographic Hardening ---
 Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com
