@@ -57,7 +57,7 @@ EOF
 
 read -rp "Enter your public SSH key: " SSH_KEY
 mkdir -p ~/.ssh && chmod 700 ~/.ssh
-echo "$SSH_KEY" > ~/.ssh/authorized_keys
+[ -n "$SSH_KEY" ] && echo "$SSH_KEY" > ~/.ssh/authorized_keys
 chmod 600 ~/.ssh/authorized_keys
 systemctl restart ssh
 
@@ -91,7 +91,7 @@ systemctl start systemd-resolved
 # --- SSL certificates ---
 read -rp "Enter your email for Let's Encrypt: " CERT_EMAIL
 read -rp "Enter your domain name: " CERT_DOMAIN
-certbot certonly --standalone --agree-tos -m "$CERT_EMAIL" -d "$CERT_DOMAIN" --non-interactive
+[ -n "$CERT_EMAIL" ] && [ -n "$CERT_DOMAIN" ] && certbot certonly --standalone --agree-tos -m "$CERT_EMAIL" -d "$CERT_DOMAIN" --non-interactive
 
 
 # --- Shell config ---
