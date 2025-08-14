@@ -57,8 +57,7 @@ EOF
 
 read -rp "Enter your public SSH key: " SSH_KEY
 mkdir -p ~/.ssh && chmod 700 ~/.ssh
-[ -n "$SSH_KEY" ] && echo "$SSH_KEY" > ~/.ssh/authorized_keys
-chmod 600 ~/.ssh/authorized_keys
+[ -n "$SSH_KEY" ] && echo "$SSH_KEY" > ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys
 systemctl restart ssh
 
 
