@@ -16,21 +16,17 @@ configure_sysctl() {
 net.core.default_qdisc=fq
 net.ipv4.tcp_congestion_control=bbr
 
-# Security hardening
+# IPv4 Security hardening
 net.ipv4.conf.all.rp_filter=1               # Enable reverse-path filtering
 net.ipv4.conf.default.rp_filter=1
 net.ipv4.conf.all.log_martians=1            # Log invalid packets
 net.ipv4.conf.all.accept_redirects=0        # Prevent MITM via ICMP redirects
 net.ipv4.conf.default.accept_redirects=0
 net.ipv4.conf.all.send_redirects=0
-
-# Optional TCP protection
 net.ipv4.tcp_syncookies=1                   # Protect against SYN flood attacks
+net.ipv4.ip_forward=0                       # Disable IP forwarding
 
-# Disable IP forwarding
-net.ipv4.ip_forward=0
-
-# Disable IPv6
+# IPv6 Disabling
 net.ipv6.conf.all.disable_ipv6=1
 net.ipv6.conf.default.disable_ipv6=1
 net.ipv6.conf.lo.disable_ipv6=1
