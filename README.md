@@ -2,7 +2,7 @@
 
 ## vps init
 ```sh
-bash <(curl -fsSL https://raw.githubusercontent.com/vargalott/configs/refs/heads/main/init.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/vargalott/configs/refs/heads/main/init-ubuntu.sh)
 ```
 
 ## some stuff
