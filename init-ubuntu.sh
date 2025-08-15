@@ -5,7 +5,7 @@ export NEEDRESTART_SUSPEND=1
 init_system() {
     apt-get -y update
     apt-get -y upgrade
-    apt-get -y install bc bmon btop curl cron dnsutils htop iftop iproute jq micro nano net-tools netcat util-linux wget certbot
+    apt-get -y install bc bmon btop curl cron dnsutils htop iftop jq micro nano net-tools util-linux wget certbot
     curl -fsSL https://get.docker.com | sh
     timedatectl set-timezone UTC
 }
