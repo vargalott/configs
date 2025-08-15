@@ -93,7 +93,6 @@ read -rp "Enter your domain name: " CERT_DOMAIN
 
 
 # --- Shell config ---
-echo '\n\n' >> ~/.bashrc
 echo 'force_color_prompt=yes' >> ~/.bashrc
 echo 'export LANG=en_US.UTF-8' >> ~/.bashrc
 echo 'export LC_ALL=en_US.UTF-8' >> ~/.bashrc
