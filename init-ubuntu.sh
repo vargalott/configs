@@ -11,14 +11,18 @@ init_system() {
 }
 
 configure_sysctl() {
-    cat <<'EOF' >> /etc/sysctl.conf
-# BBR & disable IPv6
-net.core.default_qdisc=fq
-net.ipv4.tcp_congestion_control=bbr
-net.ipv6.conf.all.disable_ipv6=1
-net.ipv6.conf.default.disable_ipv6=1
-net.ipv6.conf.lo.disable_ipv6=1
-EOF
+    sysctl_settings=(
+        "net.core.default_qdisc=fq"
+        "net.ipv4.tcp_congestion_control=bbr"
+        "net.ipv6.conf.all.disable_ipv6=1"
+        "net.ipv6.conf.default.disable_ipv6=1"
+        "net.ipv6.conf.lo.disable_ipv6=1"
+    )
+
+    for line in "${sysctl_settings[@]}"; do
+        grep -qxF "$line" /etc/sysctl.conf || echo "$line" >> /etc/sysctl.conf
+    done
+
     sysctl -p
     sysctl --system
 }
