@@ -93,7 +93,63 @@ read -rp "Enter your domain name: " CERT_DOMAIN
 
 
 # --- Shell config ---
-echo 'force_color_prompt=yes' >> ~/.bashrc
-echo 'export LANG=en_US.UTF-8' >> ~/.bashrc
-echo 'export LC_ALL=en_US.UTF-8' >> ~/.bashrc
+cat <<'EOF' > ~/.bashrc
+# Exit if not interactive
+[ -z "$PS1" ] && return
+
+# History settings
+HISTCONTROL=ignoredups:ignorespace
+shopt -s histappend
+HISTSIZE=5000
+HISTFILESIZE=10000
+
+# Adjust LINES and COLUMNS after each command
+shopt -s checkwinsize
+
+# less: enable for non-text files
+[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+
+# Prompt
+force_color_prompt=yes
+if [ -n "$force_color_prompt" ] && [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+    color_prompt=yes
+else
+    color_prompt=
+fi
+if [ "$color_prompt" = yes ]; then
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+else
+    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+fi
+unset color_prompt force_color_prompt
+
+# Xterm title
+case "$TERM" in
+    xterm*|rxvt*) PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1" ;;
+esac
+
+# Color support for ls and grep
+if [ -x /usr/bin/dircolors ]; then
+    eval "$(dircolors -b ~/.dircolors 2>/dev/null || dircolors -b)"
+    alias ls='ls --color=auto'
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
+fi
+
+# Useful aliases
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+
+# Source extra aliases if present
+[ -f ~/.bash_aliases ] && . ~/.bash_aliases
+
+# Locale
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+EOF
 source ~/.bashrc
