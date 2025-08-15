@@ -11,19 +11,30 @@ init_system() {
 }
 
 configure_sysctl() {
-    sysctl_settings=(
-        "net.core.default_qdisc=fq"
-        "net.ipv4.tcp_congestion_control=bbr"
-        "net.ipv6.conf.all.disable_ipv6=1"
-        "net.ipv6.conf.default.disable_ipv6=1"
-        "net.ipv6.conf.lo.disable_ipv6=1"
-    )
+    cat <<'EOF' > /etc/sysctl.conf
+# Basic network performance
+net.core.default_qdisc=fq
+net.ipv4.tcp_congestion_control=bbr
 
-    for line in "${sysctl_settings[@]}"; do
-        grep -qxF "$line" /etc/sysctl.conf || echo "$line" >> /etc/sysctl.conf
-    done
+# Security hardening
+net.ipv4.conf.all.rp_filter=1               # Enable reverse-path filtering
+net.ipv4.conf.default.rp_filter=1
+net.ipv4.conf.all.log_martians=1            # Log invalid packets
+net.ipv4.conf.all.accept_redirects=0        # Prevent MITM via ICMP redirects
+net.ipv4.conf.default.accept_redirects=0
+net.ipv4.conf.all.send_redirects=0
 
-    sysctl -p
+# Optional TCP protection
+net.ipv4.tcp_syncookies=1                   # Protect against SYN flood attacks
+
+# Disable IP forwarding
+net.ipv4.ip_forward=0
+
+# Disable IPv6
+net.ipv6.conf.all.disable_ipv6=1
+net.ipv6.conf.default.disable_ipv6=1
+net.ipv6.conf.lo.disable_ipv6=1
+EOF
     sysctl --system
 }
 
