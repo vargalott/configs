@@ -108,32 +108,38 @@ configure_ssl() {
 
 configure_shell() {
     cat <<'EOF' > ~/.bashrc
-# Exit if not interactive
+# ~/.bashrc
+
+# ===============================
+# 1. Interactive check
+# ===============================
 [ -z "$PS1" ] && return
+
+# ===============================
+# 2. History
+# ===============================
 HISTCONTROL=ignoredups:ignorespace
 shopt -s histappend
 HISTSIZE=5000
 HISTFILESIZE=10000
+HISTTIMEFORMAT="%F %T "
+shopt -s cmdhist histreedit histverify
+
+# ===============================
+# 3. Prompt
+# ===============================
 shopt -s checkwinsize
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
-
-force_color_prompt=yes
-if [ -n "$force_color_prompt" ] && [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
-    color_prompt=yes
+if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+    base_PS1="\[\033[35m\]\$(/bin/date '+%Y-%m-%d %H:%M:%S') \[\033[1;31m\]\u@\h: \[\033[1;34m\]\w\[\033[0m\] -> "
 else
-    color_prompt=
+    base_PS1="\$(/bin/date '+%Y-%m-%d %H:%M:%S') \u@\h: \w -> "
 fi
-if [ "$color_prompt" = yes ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
-else
-    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
-fi
-unset color_prompt force_color_prompt
+PROMPT_COMMAND='ret=$?; PS1="$( [ $ret -ne 0 ] && printf "\[\033[0;31m\](%d)\[\033[0m\] " $ret)$base_PS1"'
 
-case "$TERM" in
-    xterm*|rxvt*) PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1" ;;
-esac
-
+# ===============================
+# 4. Colors
+# ===============================
 if [ -x /usr/bin/dircolors ]; then
     eval "$(dircolors -b ~/.dircolors 2>/dev/null || dircolors -b)"
     alias ls='ls --color=auto'
@@ -142,16 +148,32 @@ if [ -x /usr/bin/dircolors ]; then
     alias egrep='egrep --color=auto'
 fi
 
-alias ll='ls -alF'
-alias la='ls -A'
-alias l='ls -CF'
-alias rm='rm -i'
-alias cp='cp -i'
-alias mv='mv -i'
+# ===============================
+# 5. Aliases
+# ===============================
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias ll='ls -alF --group-directories-first'
+alias ducks='du -hs * | sort -hr'
+alias reload='source ~/.bashrc'
 
-[ -f ~/.bash_aliases ] && . ~/.bash_aliases
+# ===============================
+# 6. Variables
+# ===============================
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
+export LESS='-R'
+
+# ===============================
+# 7. Completion
+# ===============================
+[[ $PS1 && -f /usr/share/bash-completion/bash_completion ]] && . /usr/share/bash-completion/bash_completion
+
+# ===============================
+# 8. Extra settings
+# ===============================
+shopt -s dotglob globstar
 EOF
 }
 
