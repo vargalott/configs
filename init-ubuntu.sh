@@ -131,9 +131,9 @@ shopt -s cmdhist histreedit histverify
 shopt -s checkwinsize
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
-    base_PS1="\[\033[35m\]\$(/bin/date '+%Y-%m-%d %H:%M:%S') \[\033[1;31m\]\u@\h: \[\033[1;34m\]\w\[\033[0m\] -> "
+    base_PS1="\[\033[35m\]\$(/bin/date '+%Y-%m-%d %H:%M:%S') \[\033[1;31m\]\u@\h \[\033[1;34m\]\w\[\033[0m\] -> "
 else
-    base_PS1="\$(/bin/date '+%Y-%m-%d %H:%M:%S') \u@\h: \w -> "
+    base_PS1="\$(/bin/date '+%Y-%m-%d %H:%M:%S') \u@\h \w -> "
 fi
 PROMPT_COMMAND='ret=$?; PS1="$( [ $ret -ne 0 ] && printf "\[\033[0;31m\](%d)\[\033[0m\] " $ret)$base_PS1"'
 
