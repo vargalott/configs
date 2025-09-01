@@ -92,8 +92,7 @@ StaleRetentionSec=0
 EOF
 
     ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
-    systemctl enable systemd-resolved
-    systemctl start systemd-resolved
+    systemctl enable --now systemd-resolved
 }
 
 configure_cron() {
