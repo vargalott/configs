@@ -11,7 +11,7 @@ init_system() {
 }
 
 configure_sysctl() {
-    cat <<'EOF' > /etc/sysctl.conf
+    cat > /etc/sysctl.conf <<'EOF'
 # Basic network performance
 net.core.default_qdisc=fq
 net.ipv4.tcp_congestion_control=bbr
@@ -35,7 +35,7 @@ EOF
 }
 
 configure_ssh() {
-    cat <<'EOF' > /etc/ssh/sshd_config
+    cat > /etc/ssh/sshd_config <<'EOF'
 # --- Network Configuration ---
 ListenAddress 0.0.0.0
 Port 8080
@@ -75,7 +75,7 @@ EOF
 }
 
 configure_dns() {
-    cat <<'EOF' > /etc/systemd/resolved.conf
+    cat > /etc/systemd/resolved.conf <<'EOF'
 [Resolve]
 DNS=1.1.1.1
 FallbackDNS=9.9.9.9
@@ -106,7 +106,7 @@ configure_ssl() {
 }
 
 configure_shell() {
-    cat <<'EOF' > ~/.bashrc
+    cat > ~/.bashrc <<'EOF'
 # ~/.bashrc
 
 # ===============================
@@ -176,6 +176,7 @@ shopt -s dotglob globstar
 EOF
 }
 
+# all root
 main() {
     init_system
     configure_sysctl
