@@ -180,9 +180,9 @@ EOF
 
 # all root
 main() {
-    local ssh_key="${1:-}"
-    local cert_email="${2:-}"
-    local cert_domain="${3:-}"
+    local ssh_key="${1:-${SSH_KEY:-}}"
+    local cert_email="${2:-${CERT_EMAIL:-}}"
+    local cert_domain="${3:-${CERT_DOMAIN:-}}"
 
     init_system
     configure_sysctl
