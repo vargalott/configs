@@ -38,32 +38,35 @@ configure_ssh() {
     local ssh_key="$1"
 
     cat > /etc/ssh/sshd_config <<'EOF'
+# Supported HostKey algorithms by order of preference.
+HostKey /etc/ssh/ssh_host_ed25519_key
+HostKey /etc/ssh/ssh_host_rsa_key
+HostKey /etc/ssh/ssh_host_ecdsa_key
+
 # Network
 ListenAddress 0.0.0.0                           # Listen on all interfaces
 Port 8080                                       # Custom SSH port
 
 # Cryptographic
-Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com     # Strong ciphers only
-KexAlgorithms curve25519-sha256,ecdh-sha2-nistp521               # Strong key exchange
-MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com # Strong MACs
+Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr                            # Strong ciphers only
+KexAlgorithms curve25519-sha256@libssh.org,ecdh-sha2-nistp521,ecdh-sha2-nistp384,ecdh-sha2-nistp256,diffie-hellman-group-exchange-sha256        # Strong key exchange
+MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,umac-128@openssh.com      # Strong MACs
 
 # Authentication
-PermitRootLogin prohibit-password               # Root only via keys, no passwords
-PubkeyAuthentication yes                        # Enable public key auth
-PasswordAuthentication no                       # Disable password login
-PermitEmptyPasswords no                         # Disallow empty passwords
-KbdInteractiveAuthentication no                 # Disable keyboard-interactive auth
-UsePAM no                                       # Disable PAM
+PubkeyAuthentication yes                                        # Enable key authentication
+AuthenticationMethods publickey                                 # Only allow public key auth
+PermitRootLogin prohibit-password                               # Root login via key only
+UsePAM no                                                       # Disable PAM
 
 # Session
-X11Forwarding yes                               # Allow X11 forwarding if needed
-PrintMotd no                                    # Don't print /etc/motd on login
+X11Forwarding yes                                               # Allow X11 forwarding if needed
+PrintMotd no                                                    # Don't print /etc/motd on login
 
 # Environment
-AcceptEnv LANG LC_*                             # Allow locale environment variables
+AcceptEnv LANG LC_*                                             # Allow locale environment variables
 
 # SFTP
-Subsystem sftp /usr/lib/openssh/sftp-server     # Enable SFTP subsystem
+Subsystem sftp  /usr/lib/ssh/sftp-server -f AUTHPRIV -l INFO    # Enable SFTP subsystem
 EOF
 
     mkdir -p ~/.ssh && chmod 700 ~/.ssh
