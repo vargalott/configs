@@ -12,83 +12,82 @@ init_system() {
 
 configure_sysctl() {
     cat > /etc/sysctl.conf <<'EOF'
-# Basic network performance
-net.core.default_qdisc=fq
-net.ipv4.tcp_congestion_control=bbr
+# Network Performance
+net.core.default_qdisc=fq                # Fair Queuing scheduler
+net.ipv4.tcp_congestion_control=bbr      # BBR congestion control
 
-# IPv4 Security hardening
-net.ipv4.conf.all.rp_filter=1               # Enable reverse-path filtering
-net.ipv4.conf.default.rp_filter=1
-net.ipv4.conf.all.log_martians=1            # Log invalid packets
-net.ipv4.conf.all.accept_redirects=0        # Prevent MITM via ICMP redirects
-net.ipv4.conf.default.accept_redirects=0
-net.ipv4.conf.all.send_redirects=0
-net.ipv4.tcp_syncookies=1                   # Protect against SYN flood attacks
-net.ipv4.ip_forward=0                       # Disable IP forwarding
+# IPv4 Security
+net.ipv4.conf.all.rp_filter=1            # Reverse path filter
+net.ipv4.conf.default.rp_filter=1        # Default reverse path filter
+net.ipv4.conf.all.log_martians=1         # Log bad source packets
+net.ipv4.conf.all.accept_redirects=0     # Ignore ICMP redirects
+net.ipv4.conf.default.accept_redirects=0 # Default ignore ICMP redirects
+net.ipv4.conf.all.send_redirects=0       # Don't send ICMP redirects
+net.ipv4.tcp_syncookies=1                # Enable SYN cookies
+net.ipv4.ip_forward=0                    # Disable packet forwarding
 
 # IPv6 Disabling
-net.ipv6.conf.all.disable_ipv6=1
-net.ipv6.conf.default.disable_ipv6=1
-net.ipv6.conf.lo.disable_ipv6=1
+net.ipv6.conf.all.disable_ipv6=1         # Disable IPv6
+net.ipv6.conf.default.disable_ipv6=1     # Disable IPv6 by default
+net.ipv6.conf.lo.disable_ipv6=1          # Disable IPv6 on loopback
 EOF
     sysctl --system
 }
 
 configure_ssh() {
+    local ssh_key="$1"
+
     cat > /etc/ssh/sshd_config <<'EOF'
-# --- Network Configuration ---
-ListenAddress 0.0.0.0
-Port 8080
+# Network
+ListenAddress 0.0.0.0                           # Listen on all interfaces
+Port 8080                                       # Custom SSH port
 
-# --- Cryptographic Hardening ---
-Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com
-KexAlgorithms curve25519-sha256,ecdh-sha2-nistp521
-MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com
+# Cryptographic
+Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com     # Strong ciphers only
+KexAlgorithms curve25519-sha256,ecdh-sha2-nistp521               # Strong key exchange
+MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com # Strong MACs
 
-# --- Authentication Settings ---
-PermitRootLogin prohibit-password
-PubkeyAuthentication yes
-PasswordAuthentication no
-PermitEmptyPasswords no
-KbdInteractiveAuthentication no
-UsePAM no
+# Authentication
+PermitRootLogin prohibit-password               # Root only via keys, no passwords
+PubkeyAuthentication yes                        # Enable public key auth
+PasswordAuthentication no                       # Disable password login
+PermitEmptyPasswords no                         # Disallow empty passwords
+KbdInteractiveAuthentication no                 # Disable keyboard-interactive auth
+UsePAM no                                       # Disable PAM
 
-# --- SSH Session Behavior ---
-X11Forwarding yes
-PrintMotd no
+# Session
+X11Forwarding yes                               # Allow X11 forwarding if needed
+PrintMotd no                                    # Don't print /etc/motd on login
 
-# --- Environment Configuration ---
-AcceptEnv LANG LC_*
+# Environment
+AcceptEnv LANG LC_*                             # Allow locale environment variables
 
-# --- SFTP Subsystem ---
-Subsystem sftp /usr/lib/openssh/sftp-server
+# SFTP
+Subsystem sftp /usr/lib/openssh/sftp-server     # Enable SFTP subsystem
 EOF
 
-    read -rp "Enter your public SSH key: " SSH_KEY
-    if [ -n "$SSH_KEY" ]; then
-        mkdir -p ~/.ssh
-        chmod 700 ~/.ssh
-        echo "$SSH_KEY" > ~/.ssh/authorized_keys
-        chmod 600 ~/.ssh/authorized_keys
-    fi
+    mkdir -p ~/.ssh && chmod 700 ~/.ssh
+    [ -n "$ssh_key" ] && echo "$ssh_key" > ~/.ssh/authorized_keys || touch ~/.ssh/authorized_keys
+    chmod 600 ~/.ssh/authorized_keys
+
     systemctl restart ssh
 }
 
 configure_dns() {
     cat > /etc/systemd/resolved.conf <<'EOF'
 [Resolve]
-DNS=1.1.1.1
-FallbackDNS=9.9.9.9
-LLMNR=no
-MulticastDNS=no 
-DNSSEC=yes
-DNSOverTLS=yes
-DNSStubListener=yes
-Cache=no-negative
-CacheFromLocalhost=no
-ReadEtcHosts=yes
-ResolveUnicastSingleLabel=no
-StaleRetentionSec=0
+DNS=1.1.1.1                          # Primary DNS (Cloudflare)
+FallbackDNS=9.9.9.9                  # Secondary DNS (Quad9)
+LLMNR=no                             # Disable Link-Local Multicast Name Resolution
+MulticastDNS=no                      # Disable mDNS (Bonjour/Avahi)
+DNSSEC=yes                           # Enable DNSSEC validation
+DNSOverTLS=yes                       # Use DNS over TLS for queries
+DNSStubListener=yes                  # Enable local stub listener on 127.0.0.53
+Cache=no-negative                    # Don't cache failed lookups
+CacheFromLocalhost=no                # Don't cache queries from localhost
+ReadEtcHosts=yes                     # Read /etc/hosts file
+ResolveUnicastSingleLabel=no         # Disallow single-label DNS queries
+StaleRetentionSec=0                  # Dont use stale DNS cache entries
 EOF
 
     ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
@@ -100,9 +99,12 @@ configure_cron() {
 }
 
 configure_ssl() {
-    read -rp "Enter your email for Let's Encrypt: " CERT_EMAIL
-    read -rp "Enter your domain name: " CERT_DOMAIN
-    [ -n "$CERT_EMAIL" ] && [ -n "$CERT_DOMAIN" ] && certbot certonly --standalone --agree-tos -m "$CERT_EMAIL" -d "$CERT_DOMAIN" --non-interactive
+    local cert_email="$1"
+    local cert_domain="$2"
+
+    if [ -n "$cert_email" ] && [ -n "$cert_domain" ]; then
+        certbot certonly --standalone --agree-tos -m "$cert_email" -d "$cert_domain" --non-interactive
+    fi
 }
 
 configure_shell() {
@@ -178,12 +180,16 @@ EOF
 
 # all root
 main() {
+    local ssh_key="${1:-}"
+    local cert_email="${2:-}"
+    local cert_domain="${3:-}"
+
     init_system
     configure_sysctl
-    configure_ssh
+    configure_ssh "$ssh_key"
     configure_dns
     configure_cron
-    configure_ssl
+    configure_ssl "$cert_email" "$cert_domain"
     configure_shell
 }
 
