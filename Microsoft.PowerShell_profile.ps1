@@ -34,13 +34,12 @@ function ll {
 function ducks {
     Get-ChildItem | ForEach-Object {
         $size = (Get-ChildItem $_.FullName -Recurse -File -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum).Sum
-        if (-not $size) { $size = 0 }
 
         $hrSize = switch ($size) {
             {$_ -ge 1GB} { "{0:N1} GB" -f ($size/1GB); break }
             {$_ -ge 1MB} { "{0:N1} MB" -f ($size/1MB); break }
             {$_ -ge 1KB} { "{0:N1} KB" -f ($size/1KB); break }
-            default { "0 B" }
+            default { "-" }
         }
 
         return [PSCustomObject]@{
