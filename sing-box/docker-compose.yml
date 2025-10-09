@@ -5,6 +5,8 @@ services:
     image: ghcr.io/sagernet/sing-box:latest
     container_name: sing-box
     restart: always
+    networks:
+      - localnet
     ports:
       - 443:443
     volumes:
@@ -16,3 +18,7 @@ services:
       driver: "local"
       options:
         max-size: "100m"
+
+networks:
+  localnet:
+    external: true

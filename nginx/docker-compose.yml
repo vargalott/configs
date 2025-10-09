@@ -7,8 +7,6 @@ services:
     restart: always
     networks:
       - localnet
-    ports:
-      - 8443:8443
     volumes:
       - ./nginx/:/etc/nginx/
       - /etc/letsencrypt/:/etc/letsencrypt/
