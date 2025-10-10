@@ -5,10 +5,11 @@ function prompt {
     $hostName = [Environment]::MachineName
     $currentPath = Get-Location
 
-    # Colors
-    Write-Host -NoNewline -ForegroundColor Magenta "$currentDateTime "
-    Write-Host -NoNewline -ForegroundColor DarkRed "$user@$hostName "
-    Write-Host -NoNewline -ForegroundColor Blue "$currentPath "
+    # Colored Prompt
+    if ($LASTEXITCODE) { Write-Host -NoNewline -ForegroundColor RED "($LASTEXITCODE) " }
+    Write-Host -NoNewline -ForegroundColor Yellow "$currentDateTime "
+    Write-Host -NoNewline -ForegroundColor DarkCyan "$user@$hostName "
+    Write-Host -NoNewline -ForegroundColor Red "$currentPath "
     Write-Host -NoNewline -ForegroundColor White "->"
     return " "
 }
