@@ -66,7 +66,7 @@ PrintMotd no
 AcceptEnv LANG LC_*
 
 # SFTP
-Subsystem sftp  /usr/lib/ssh/sftp-server -f AUTHPRIV -l INFO    # Enable SFTP subsystem
+Subsystem sftp  /usr/lib/ssh/sftp-server -f AUTHPRIV -l INFO
 EOF
 
     mkdir -p ~/.ssh && chmod 700 ~/.ssh
