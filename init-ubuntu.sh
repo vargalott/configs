@@ -187,13 +187,13 @@ main() {
     local cert_email="${2:-${CERT_EMAIL:-}}"
     local cert_domain="${3:-${CERT_DOMAIN:-}}"
 
-    init_system
-    configure_sysctl
-    configure_ssh "$ssh_key"
-    configure_dns
-    configure_cron
-    configure_ssl "$cert_email" "$cert_domain"
-    configure_shell
+    init_system && sleep 1
+    configure_sysctl && sleep 1
+    configure_ssh "$ssh_key" && sleep 1
+    configure_dns && sleep 1
+    configure_cron && sleep 1
+    configure_ssl "$cert_email" "$cert_domain" && sleep 1
+    configure_shell && sleep 1
 }
 
 main "$@"
