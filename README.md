@@ -18,7 +18,7 @@ wget -qO- nws.sh | bash
 certbot certonly --standalone --agree-tos -m EMAIL -d DOMAIN
 certbot renew --dry-run
 
-docker network create localnet
+docker network create --driver bridge --subnet=172.20.0.0/24 --gateway=172.20.0.1 localnet
 
 uuidgen
 docker run ghcr.io/sagernet/sing-box:latest generate reality-keypair

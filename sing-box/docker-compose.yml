@@ -6,7 +6,8 @@ services:
     container_name: sing-box
     restart: always
     networks:
-      - localnet
+      localnet:
+        ipv4_address: 172.20.0.10
     ports:
       - 443:443
     volumes:

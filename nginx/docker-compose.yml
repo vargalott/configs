@@ -6,7 +6,8 @@ services:
     container_name: nginx
     restart: always
     networks:
-      - localnet
+      localnet:
+        ipv4_address: 172.20.0.20
     volumes:
       - ./nginx/:/etc/nginx/
       - /etc/letsencrypt/:/etc/letsencrypt/
