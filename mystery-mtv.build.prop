@@ -107,7 +107,7 @@ ro.vold.primary_physical=false
 service.adb.tcp.port=5555
 wifi.interface=wlan0
 
-endregion
+#endregion
 
 #region Custom properties
 
