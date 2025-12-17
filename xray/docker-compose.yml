@@ -1,0 +1,25 @@
+name: xray
+
+services:
+  xray:
+    image: ghcr.io/xtls/xray-core
+    container_name: xray
+    restart: always
+    networks:
+      localnet:
+        ipv4_address: 172.20.0.10
+    ports:
+      - 443:443
+    volumes:
+      - ./config/:/usr/local/etc/xray/
+      - /etc/letsencrypt/:/etc/letsencrypt/
+    command: run -c /usr/local/etc/xray/config.json
+
+    logging:
+      driver: "local"
+      options:
+        max-size: "100m"
+
+networks:
+  localnet:
+    external: true
